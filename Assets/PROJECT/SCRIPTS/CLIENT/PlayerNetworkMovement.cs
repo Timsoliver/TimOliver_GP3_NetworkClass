@@ -1,8 +1,9 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerNetworkMovement : MonoBehaviour
+public class PlayerNetworkMovement : NetworkBehaviour
 {
 
     private MultiplayerInputMap inputMap;
@@ -35,6 +36,8 @@ public class PlayerNetworkMovement : MonoBehaviour
 
     private void Update()
     {
+        if (!IsOwner) return;
+        
         playerParentTransform.localPosition = new Vector3(
             playerParentTransform.localPosition.x + movementSpeed * playerMovementDirection.x * Time.deltaTime,
             playerParentTransform.localPosition.y,
