@@ -2,9 +2,37 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Random = UnityEngine.Random;
 
 public class PlayerNetworkMovement : NetworkBehaviour
 {
+    [Header("PlayerData")] [SerializeField]
+    private NetworkVariable<float> playerHealth = new NetworkVariable<float>(100,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Owner);
+
+    private NetworkVariable<CustomPlayerData> playerData = new NetworkVariable<CustomPlayerData>(
+        new CustomPlayerData
+        {
+            playerNumber = 12,
+            playerHealth = 100,
+            playerName = "Player"
+        }
+    );
+    
+    public struct CustomPlayerData
+    {
+        public int playerNumber;
+        public int playerHealth;
+        public string playerName;
+
+        public void NetworkSerialise<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref playerNumber);
+            serializer.SerializeValue(ref playerHealth);
+            serializer.SerializeValue(ref playerName);
+        }
+    }
+    
+    [Header ("Movement")]
 
     private MultiplayerInputMap inputMap;
 
@@ -23,6 +51,8 @@ public class PlayerNetworkMovement : NetworkBehaviour
         inputMap.PlayerActionMap.Pause.performed += OnPause;
         inputMap.PlayerActionMap.Movement.performed += OnMove;
         inputMap.PlayerActionMap.Movement.canceled += OnResetMove;
+
+        playerHealth.Value = Random.Range(0, 100);
     }
     
 
@@ -32,6 +62,11 @@ public class PlayerNetworkMovement : NetworkBehaviour
         inputMap.PlayerActionMap.Pause.performed -= OnPause;
         inputMap.PlayerActionMap.Movement.performed -= OnMove;
         inputMap.PlayerActionMap.Movement.canceled -= OnResetMove;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        
     }
 
     private void Update()
@@ -61,6 +96,8 @@ public class PlayerNetworkMovement : NetworkBehaviour
     
     private void OnPause(InputAction.CallbackContext context)
     {
+        if (!IsOwner) return;
         
+        Debug.Log(OwnerClientId + "; Player Health: " + playerHealth.Value);
     }
 }
