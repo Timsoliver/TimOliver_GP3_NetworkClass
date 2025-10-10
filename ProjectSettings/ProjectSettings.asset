@@ -141,8 +141,7 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 0.1.0
-  preloadedAssets:
-  - {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -930,11 +929,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 11cca541-f589-43bd-b3dd-2e9cc8e29d1b
+  cloudProjectId: a6ebf9da-5442-439d-8ee5-27448c12ebe0
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: My project (1) 2025-10-03_09-01-51
-  organizationId: sir_danny
+  projectName: TimOliver_GP3_NetworkClass
+  organizationId: speroless
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
