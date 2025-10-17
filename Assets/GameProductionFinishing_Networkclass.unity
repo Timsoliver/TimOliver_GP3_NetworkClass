@@ -200,7 +200,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 27991775}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 11500000, guid: c6a808a6c0f562646b653a398f8b3089, type: 3}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &27991775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2035,6 +2047,7 @@ MonoBehaviour:
   clientBtn: {fileID: 1979988513}
   serverBtn: {fileID: 170134495}
   hostBtn: {fileID: 27991774}
+  serverRelay: {fileID: 0}
 --- !u!1 &1600282061
 GameObject:
   m_ObjectHideFlags: 0
