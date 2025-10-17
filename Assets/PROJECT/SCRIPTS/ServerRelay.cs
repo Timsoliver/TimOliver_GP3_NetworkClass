@@ -25,14 +25,14 @@ public class ServerRelay : MonoBehaviour
     
     
 
-    async void CreateRelay()
+    public async void CreateRelay()
     {
         try
         {
            Allocation _allocationHolder = await RelayService.Instance.CreateAllocationAsync(maxNumberOfPlayers - 1);
            string _joinCode = await RelayService.Instance.GetJoinCodeAsync(_allocationHolder.AllocationId);
 
-           
+           Debug.Log(_joinCode);
            
            NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
                _allocationHolder.RelayServer.IpV4,
@@ -51,7 +51,7 @@ public class ServerRelay : MonoBehaviour
         
     }
 
-    async void JoinRelay(string _joinCode)
+    public async void JoinRelay(string _joinCode)
     {
         try
         {
@@ -67,6 +67,7 @@ public class ServerRelay : MonoBehaviour
                 _joinAllocationHolder.ConnectionData,
                 _joinAllocationHolder.HostConnectionData
             );
+            NetworkManager.Singleton.StartClient();
         }
         catch (RelayServiceException e)
         {

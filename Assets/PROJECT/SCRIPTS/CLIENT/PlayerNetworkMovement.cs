@@ -82,7 +82,7 @@ public class PlayerNetworkMovement : NetworkBehaviour
     }
 
     [ServerRpc]
-    void TestServerRpc()
+    private void TestServerRpc()
     {
         
     }
