@@ -29,17 +29,17 @@ public class ServerRelay : MonoBehaviour
     {
         try
         {
-           Allocation _allocationHolder = await RelayService.Instance.CreateAllocationAsync(maxNumberOfPlayers - 1);
-           string _joinCode = await RelayService.Instance.GetJoinCodeAsync(_allocationHolder.AllocationId);
+           Allocation allocationHolder = await RelayService.Instance.CreateAllocationAsync(maxNumberOfPlayers - 1);
+           string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocationHolder.AllocationId);
 
-           Debug.Log(_joinCode);
+           Debug.Log(joinCode);
            
            NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
-               _allocationHolder.RelayServer.IpV4,
-               (ushort)_allocationHolder.RelayServer.Port,
-               _allocationHolder.AllocationIdBytes,
-               _allocationHolder.Key,
-               _allocationHolder.ConnectionData
+               allocationHolder.RelayServer.IpV4,
+               (ushort) allocationHolder.RelayServer.Port,
+               allocationHolder.AllocationIdBytes,
+               allocationHolder.Key,
+               allocationHolder.ConnectionData
            );
            NetworkManager.Singleton.StartHost();
         }
@@ -56,16 +56,16 @@ public class ServerRelay : MonoBehaviour
         try
         {
             Debug.Log($"Joining relay with code {_joinCode}");
-            JoinAllocation _joinAllocationHolder = await RelayService.Instance.JoinAllocationAsync(_joinCode);
+            JoinAllocation joinAllocationHolder = await RelayService.Instance.JoinAllocationAsync(_joinCode);
             
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
                 
-                _joinAllocationHolder.RelayServer.IpV4,
-                (ushort)_joinAllocationHolder.RelayServer.Port,
-                _joinAllocationHolder.AllocationIdBytes,
-                _joinAllocationHolder.Key,
-                _joinAllocationHolder.ConnectionData,
-                _joinAllocationHolder.HostConnectionData
+                joinAllocationHolder.RelayServer.IpV4,
+                (ushort) joinAllocationHolder.RelayServer.Port,
+                joinAllocationHolder.AllocationIdBytes,
+                joinAllocationHolder.Key,
+                joinAllocationHolder.ConnectionData,
+                joinAllocationHolder.HostConnectionData
             );
             NetworkManager.Singleton.StartClient();
         }

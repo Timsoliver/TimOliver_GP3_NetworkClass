@@ -76,8 +76,8 @@ public class PlayerNetworkMovement : NetworkBehaviour
    
     void OnInteract(InputAction.CallbackContext context)
     {
-        GameObject _tempHolder = Instantiate(spawnedItemPrefab);
-        _tempHolder.GetComponent<NetworkObject>().Spawn(true);
+        GameObject tempHolder = Instantiate(spawnedItemPrefab);
+        tempHolder.GetComponent<NetworkObject>().Spawn(true);
 
     }
 
