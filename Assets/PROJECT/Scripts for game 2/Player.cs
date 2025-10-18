@@ -1,22 +1,16 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Random = UnityEngine.Random;
 
-public class PlayerNetworkMovement : NetworkBehaviour
+public class Player: NetworkBehaviour
 {
-    
-    [Header("PlayerData")] [SerializeField]
-    private NetworkVariable<float> playerHealth = new NetworkVariable<float>(100,NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Owner);
-
     private MultiplayerInputMap inputMap;
 
     private Vector2 playerMovementDirection;
 
     [SerializeField] private float movementSpeed;
 
-    [SerializeField] private Transform playerParentTransform;
+    [SerializeField] private Transform playerTransform;
     
     [SerializeField] private GameObject spawnedItemPrefab;
     
@@ -24,39 +18,37 @@ public class PlayerNetworkMovement : NetworkBehaviour
     
     private void Awake()
     {
-        inputMap = new MultiplayerInputMap();
-        inputMap.Enable();
-
-        inputMap.PlayerActionMap.Jump.performed += OnJump;
-        inputMap.PlayerActionMap.Interact.performed += OnInteract;
-        inputMap.PlayerActionMap.Movement.performed += OnMove;
-        inputMap.PlayerActionMap.Movement.canceled += OnResetMove;
-
-        playerHealth.Value = Random.Range(0, 100);
+       
     }
     
 
     private void OnDisable()
     {
         inputMap.PlayerActionMap.Jump.performed -= OnJump;
-        inputMap.PlayerActionMap.Interact.performed -= OnInteract;
+        //inputMap.PlayerActionMap.Interact.performed -= OnInteract;
         inputMap.PlayerActionMap.Movement.performed -= OnMove;
         inputMap.PlayerActionMap.Movement.canceled -= OnResetMove;
     }
 
-    public override void OnNetworkSpawn()
+    public override void OnNetworkSpawn() 
     {
-        
+        inputMap = new MultiplayerInputMap();
+        inputMap.Enable();
+
+        inputMap.PlayerActionMap.Jump.performed += OnJump;
+        //inputMap.PlayerActionMap.Interact.performed += OnInteract;
+        inputMap.PlayerActionMap.Movement.performed += OnMove;
+        inputMap.PlayerActionMap.Movement.canceled += OnResetMove;
     }
 
     private void Update()
     {
         if (!IsOwner) return;
         
-        playerParentTransform.localPosition = new Vector3(
-            playerParentTransform.localPosition.x + movementSpeed * playerMovementDirection.x * Time.deltaTime,
-            playerParentTransform.localPosition.y,
-            playerParentTransform.localPosition.z + movementSpeed * playerMovementDirection.y * Time.deltaTime);
+        playerTransform.localPosition = new Vector3(
+            playerTransform.localPosition.x + movementSpeed * playerMovementDirection.x * Time.deltaTime,
+            playerTransform.localPosition.y,
+            playerTransform.localPosition.z + movementSpeed * playerMovementDirection.y * Time.deltaTime);
         
     }
 
@@ -74,12 +66,11 @@ public class PlayerNetworkMovement : NetworkBehaviour
         
     }
    
-    void OnInteract(InputAction.CallbackContext context)
+    /*void OnInteract(InputAction.CallbackContext context)
     {
         GameObject tempHolder = Instantiate(spawnedItemPrefab);
         tempHolder.GetComponent<NetworkObject>().Spawn(true);
-
-    }
+    }*/
 
     [ServerRpc]
     private void TestServerRpc()
