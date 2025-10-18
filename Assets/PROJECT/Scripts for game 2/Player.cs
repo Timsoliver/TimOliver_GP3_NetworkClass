@@ -15,12 +15,6 @@ public class Player: NetworkBehaviour
     [SerializeField] private GameObject spawnedItemPrefab;
     
     
-    
-    private void Awake()
-    {
-       
-    }
-    
 
     private void OnDisable()
     {
@@ -71,16 +65,5 @@ public class Player: NetworkBehaviour
         GameObject tempHolder = Instantiate(spawnedItemPrefab);
         tempHolder.GetComponent<NetworkObject>().Spawn(true);
     }*/
-
-    [ServerRpc]
-    private void TestServerRpc()
-    {
-        
-    }
-
-    [ClientRpc]
-    void TestClientRpc()
-    {
-        
-    }
+    
 }
