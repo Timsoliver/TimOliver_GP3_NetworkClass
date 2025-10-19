@@ -22,6 +22,8 @@ public class Player: NetworkBehaviour
         //inputMap.PlayerActionMap.Interact.performed -= OnInteract;
         inputMap.PlayerActionMap.Movement.performed -= OnMove;
         inputMap.PlayerActionMap.Movement.canceled -= OnResetMove;
+        
+        
     }
 
     public override void OnNetworkSpawn() 
@@ -58,6 +60,14 @@ public class Player: NetworkBehaviour
     private void OnJump(InputAction.CallbackContext context)
     {
         
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsOwner && inputMap != null)
+        {
+            inputMap.Disable();
+        }
     }
    
     /*void OnInteract(InputAction.CallbackContext context)

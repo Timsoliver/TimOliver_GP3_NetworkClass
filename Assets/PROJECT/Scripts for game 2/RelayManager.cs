@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using TMPro;
 using Unity.Netcode;
@@ -24,6 +25,11 @@ public class RelayManager : MonoBehaviour
     
     [SerializeField] TextMeshProUGUI hostCodeText;
 
+    [Header("UI Groups")]
+    
+    [SerializeField] private GameObject joinMenu;
+    [SerializeField] private GameObject gaming;
+
     async void Start()
     {
         await UnityServices.InitializeAsync();
@@ -47,12 +53,30 @@ public class RelayManager : MonoBehaviour
 
     async void JoinRelay(string joinCode)
     {
-        var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-        var relayServerData = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
-        
-        NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-        
-        NetworkManager.Singleton.StartClient();
-    }
 
+        if (string.IsNullOrWhiteSpace(joinCode))
+        {
+            Debug.LogWarning("JoinCode is empty");
+            return;
+        }
+        
+        
+        try
+        {
+            var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            var relayServerData = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
+        
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+        
+            NetworkManager.Singleton.StartClient();
+
+            joinMenu.SetActive(false);
+            gaming.SetActive(true);
+
+        }
+        catch (RelayServiceException e)
+        {
+            Debug.LogError($"Relay Joining Failed: {e.Message}");
+        }
+    }
 }

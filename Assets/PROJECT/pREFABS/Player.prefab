@@ -122,8 +122,8 @@ GameObject:
   - component: {fileID: 2130146153040902035}
   - component: {fileID: 8481950928299813590}
   - component: {fileID: 5983353930324555545}
+  - component: {fileID: 243857049602797729}
   - component: {fileID: 6099318648167910364}
-  - component: {fileID: 9077969930531033362}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -234,32 +234,7 @@ MonoBehaviour:
   movementSpeed: 5
   playerTransform: {fileID: 906745192039557124}
   spawnedItemPrefab: {fileID: 904569276961838801, guid: 87d1964cbc1f4134ba60d1e859df9d33, type: 3}
---- !u!143 &6099318648167910364
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5484291501796418546}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9077969930531033362
+--- !u!114 &243857049602797729
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -268,11 +243,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5484291501796418546}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a17a39600565b74bac99eebd01c1682, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
+  NetworkTransformExpanded: 1
   AutoOwnerAuthorityTickOffset: 1
   PositionInterpolationType: 0
   RotationInterpolationType: 0
@@ -305,3 +280,28 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!143 &6099318648167910364
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5484291501796418546}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
