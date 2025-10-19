@@ -13,6 +13,8 @@ public class Player: NetworkBehaviour
 
     [SerializeField] private float movementSpeed;
 
+    [SerializeField] private float jumpForce = 5f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -52,9 +54,9 @@ public class Player: NetworkBehaviour
     {
         if (!IsOwner) return;
         
-        if (Mathf.Abs(rb.velocity.y) < 0.1f)
+        if (Mathf.Abs(rb.linearVelocity.y) < 0.1f)
         {
-            rb.AddForce(Vector3.up * 5f, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 

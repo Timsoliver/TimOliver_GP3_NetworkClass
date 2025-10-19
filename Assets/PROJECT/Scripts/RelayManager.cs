@@ -14,6 +14,7 @@ public class RelayManager : MonoBehaviour
     [SerializeField] Button hostButton;
     [SerializeField] Button joinButton;
     [SerializeField] Button leaveButton;
+    [SerializeField] Button quitButton;
     
     [Header("Joining Code")]
     [SerializeField] TMP_InputField joinInputCode;
@@ -23,9 +24,9 @@ public class RelayManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI joinCodeText;
     
     [Header("UI Groups")]
-    [SerializeField] private GameObject joinMenu;
-    [SerializeField] private GameObject gaming;
-    [SerializeField] private GameObject menu;
+    [SerializeField] GameObject joinMenu;
+    [SerializeField] GameObject gaming;
+    [SerializeField] GameObject menu;
     
     [Header("Text Change")]
     [SerializeField] TextMeshProUGUI leaveButtonText;
@@ -39,6 +40,8 @@ public class RelayManager : MonoBehaviour
         hostButton.onClick.AddListener(CreateRelay);
         joinButton.onClick.AddListener(() => JoinRelay(joinInputCode.text));
         leaveButton.onClick.AddListener(LeaveGame);
+        quitButton.onClick.AddListener(QuitGame);
+        
     }
 
     async void CreateRelay()
@@ -120,5 +123,11 @@ public class RelayManager : MonoBehaviour
         leaveButtonText.text = "";
         
         Debug.Log("Leaving Game + network shutdown.");
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+        Debug.Log("QuitGame");
     }
 }
