@@ -12,8 +12,9 @@ public class Player: NetworkBehaviour
     private Vector2 moveInput;
 
     [SerializeField] private float movementSpeed;
-
     [SerializeField] private float jumpForce = 5f;
+    
+    [SerializeField] private Slam slam;
 
     private void Awake()
     {
@@ -30,6 +31,8 @@ public class Player: NetworkBehaviour
         inputMap.PlayerActionMap.Jump.performed += OnJump;
         inputMap.PlayerActionMap.Movement.performed += OnMove;
         inputMap.PlayerActionMap.Movement.canceled += OnResetMove;
+
+        inputMap.PlayerActionMap.Slam.performed += OnSlam;
     }
 
     private void FixedUpdate()
@@ -60,6 +63,12 @@ public class Player: NetworkBehaviour
         }
     }
 
+    private void OnSlam(InputAction.CallbackContext context)
+    {
+        if (!IsOwner) return;
+        slam?.RequestSlam();
+    }
+
     public override void OnNetworkDespawn()
     {
         if (IsOwner && inputMap != null)
@@ -74,6 +83,7 @@ public class Player: NetworkBehaviour
         inputMap.PlayerActionMap.Jump.performed -= OnJump;
         inputMap.PlayerActionMap.Movement.performed -= OnMove;
         inputMap.PlayerActionMap.Movement.canceled -= OnResetMove;
+        inputMap.PlayerActionMap.Slam.performed -= OnSlam;
     }
     
 }

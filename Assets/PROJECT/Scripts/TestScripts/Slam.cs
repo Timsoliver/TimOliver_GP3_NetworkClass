@@ -17,6 +17,11 @@ public class Slam : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private LayerMask groundLayers;
     
+    [Header("Slam Image Settings")]
+    
+    [SerializeField] private GameObject slamImage;
+    [SerializeField] private float imageReturnDelay = 3f;
+    
     private Rigidbody rb;
 
     private bool doSlam = false;
@@ -25,6 +30,8 @@ public class Slam : MonoBehaviour
     private void Awake()
     { 
         rb = GetComponent<Rigidbody>();
+        if (slamImage != null)
+            slamImage.SetActive(false);
     }
     
     void FixedUpdate()
@@ -82,6 +89,19 @@ public class Slam : MonoBehaviour
     {
         rb.useGravity = true;
         isSlamming = false;
+
+        if (slamImage != null)
+        {
+            slamImage.SetActive(true);
+            StartCoroutine(ImageReturnDelay());
+        }
+    }
+
+    private IEnumerator ImageReturnDelay()
+    {
+        yield return new WaitForSeconds(imageReturnDelay);
+        if (slamImage != null)
+            slamImage.SetActive(false);
     }
 
     private void ClearForces()
@@ -94,5 +114,12 @@ public class Slam : MonoBehaviour
     {
         if (groundCheck == null) return false;
         return Physics.CheckSphere( groundCheck.position, groundCheckRadius, groundLayers, QueryTriggerInteraction.Ignore);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (groundCheck == null) return;
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
 }
