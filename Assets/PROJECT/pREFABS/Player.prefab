@@ -243,6 +243,8 @@ MonoBehaviour:
   movementSpeed: 5
   jumpForce: 15.7
   slam: {fileID: -634122014459946681}
+  bodyRenderer: {fileID: 900252674505925501}
+  cooldownColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!114 &243857049602797729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -370,14 +372,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dropForce: 30
   stopTime: 0.5
-  gravityScale: 1
+  postSlamCooldown: 2
   groundCheck: {fileID: 2949362529793265159}
   groundCheckRadius: 0.2
   groundLayers:
     serializedVersion: 2
     m_Bits: 64
   slamImage: {fileID: 8686178683749463226}
-  imageReturnDelay: 3
+  imageReturnDelay: 2
+  player: {fileID: 5983353930324555545}
 --- !u!1 &7494128127949236578
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,7 +438,7 @@ Transform:
   m_GameObject: {fileID: 8686178683749463226}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.071, z: 0}
+  m_LocalPosition: {x: 0, y: 0.05, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

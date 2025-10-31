@@ -9,7 +9,7 @@ public class Slam : MonoBehaviour
     
     [SerializeField] private float dropForce = 30f;
     [SerializeField] private float stopTime = 0.5f;
-    [SerializeField] private float gravityScale = 1f;
+    [SerializeField] private float postSlamCooldown = 3f;
     
     [Header("Ground Check")]
     
@@ -21,6 +21,10 @@ public class Slam : MonoBehaviour
     
     [SerializeField] private GameObject slamImage;
     [SerializeField] private float imageReturnDelay = 3f;
+    
+    [Header("Player")]
+    
+    [SerializeField] private Player player;
     
     private Rigidbody rb;
 
@@ -52,7 +56,12 @@ public class Slam : MonoBehaviour
         {
             if (contacts[i].normal.y >= 0.5)
             {
+               
                 CompleteSlam();
+                
+                if (player != null && postSlamCooldown > 0)
+                    player.LockControlsFor(postSlamCooldown);
+                
                 break;
             }
         }
@@ -70,7 +79,7 @@ public class Slam : MonoBehaviour
     {
         isSlamming = true;
         Stop();
-        StartCoroutine("DropAndSmash"); 
+        StartCoroutine(DropAndSmash()); 
     }
 
     private void Stop()
