@@ -23,14 +23,19 @@ public class Slam : MonoBehaviour
     [SerializeField] private float imageReturnDelay = 3f;
     
     [Header("Player")]
-    
     [SerializeField] private Player player;
     
+    [Header("Knockout")] 
+    
+    [SerializeField] private float slamRadius = 4f;
+    [SerializeField] private float slamForce = 12f;
+    [SerializeField] private float upwardModifer = 0.25f;
+    [SerializeField] private LayerMask affectedLayers;
+    
     private Rigidbody rb;
-
     private bool doSlam = false;
     private bool isSlamming = false;
-
+    
     private void Awake()
     { 
         rb = GetComponent<Rigidbody>();
@@ -54,12 +59,11 @@ public class Slam : MonoBehaviour
         var contacts = other.contacts;
         for (int i = 0; i < contacts.Length; i++)
         {
-            if (contacts[i].normal.y >= 0.5)
+            if (contacts[i].normal.y >= 0.5f)
             {
-               
                 CompleteSlam();
                 
-                if (player != null && postSlamCooldown > 0)
+                if (player != null && postSlamCooldown > 0f)
                     player.LockControlsFor(postSlamCooldown);
                 
                 break;
@@ -104,6 +108,11 @@ public class Slam : MonoBehaviour
             slamImage.SetActive(true);
             StartCoroutine(ImageReturnDelay());
         }
+
+        if (player != null)
+        {
+            player.DoSlamKnockbackNetwork(transform.position, slamRadius, slamForce, upwardModifer, affectedLayers);
+        }
     }
 
     private IEnumerator ImageReturnDelay()
@@ -127,8 +136,14 @@ public class Slam : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (groundCheck == null) return;
-        Gizmos.color = Color.black;
-        Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        if (groundCheck == null)
+        {
+            Gizmos.color = Color.black;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
+
+        Gizmos.color = new Color(1f, 0.6f, 0f, 0.6f);
+        Gizmos.DrawWireSphere(transform.position, slamRadius);
     }
+    
 }

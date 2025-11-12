@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Player: NetworkBehaviour
@@ -48,7 +49,7 @@ public class Player: NetworkBehaviour
         if (!IsOwner) return;
         if (controlsLocked) return;
         
-        Vector3 move = new Vector3(moveInput.x, 0, moveInput.y);
+        Vector3 move = new Vector3(moveInput.x, 0f, moveInput.y);
         rb.MovePosition(rb.position + move * movementSpeed * Time.fixedDeltaTime);
     }
     
@@ -115,5 +116,56 @@ public class Player: NetworkBehaviour
         inputMap.PlayerActionMap.Movement.canceled -= OnResetMove;
         inputMap.PlayerActionMap.Slam.performed -= OnSlam;
     }
+
+    public void DoSlamKnockbackNetwork(Vector3 origin, float radius, float force, float upward, LayerMask mask)
+    {
+        if (!IsOwner) return;
+        ApplySlamKnockbackServerRpc(origin, radius, force, upward, mask.value);
+    }
+
+    [ServerRpc]
+    private void ApplySlamKnockbackServerRpc(Vector3 origin, float radius, float force, float upward, int layerMask)
+    {
+        var hits = Physics.OverlapSphere(origin, radius, layerMask, QueryTriggerInteraction.Ignore);
+
+        foreach (var hit in hits)
+        {
+            var targetRb = hit.attachedRigidbody;
+            if (targetRb == null) continue;
+            
+            var targetNetworkObject = hit.GetComponentInParent<NetworkObject>();
+            if (targetNetworkObject == null) continue;
+            
+            if (targetNetworkObject == this.NetworkObject) continue;
+            
+            Vector3 direction = (targetRb.worldCenterOfMass - origin).normalized;
+            direction.y = Mathf.Max(direction.y, upward);
+            Vector3 impulse = direction * force;
+            
+            ulong targetClientId = targetNetworkObject.OwnerClientId;
+            var sendParams = new ClientRpcParams()
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new ulong[] { targetClientId }
+                }
+            };
+            
+            var targetPlayer = targetNetworkObject.GetComponent<Player>();
+            if (targetPlayer != null)
+            {
+                targetPlayer.ApplyKnockbackClientRpc(impulse, sendParams);
+            }
+        }
+    }
     
+    [ClientRpc]
+    private void ApplyKnockbackClientRpc(Vector3 impulse, ClientRpcParams rpcParams = default)
+    {
+        if (!IsOwner) return;   
+        if (rb == null) rb = GetComponent<Rigidbody>();
+        if (rb == null) return;
+        
+        rb.AddForce(impulse, ForceMode.Impulse);
+    }
 }
