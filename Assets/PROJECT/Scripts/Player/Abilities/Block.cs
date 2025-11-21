@@ -12,6 +12,9 @@ public class Block : MonoBehaviour
     [SerializeField] private Renderer bodyRenderer;
     [SerializeField] private Color blockColor = Color.green;
     [SerializeField] private GameObject blockObject;
+
+    [Header("Player")] 
+    [SerializeField] private Player player;
     
     private Color originalColor;
     private bool isBlocking = false;
@@ -47,6 +50,11 @@ public class Block : MonoBehaviour
             bodyRenderer.material.color = blockColor;
 
         yield return new WaitForSeconds(blockDuration);
+
+        if (player != null && blockCooldown > 0f)
+        {
+            player.StartBlockCooldown(blockCooldown);
+        }
         
         isBlocking = false;
         

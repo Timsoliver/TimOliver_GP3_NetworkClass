@@ -31,8 +31,19 @@ public class Player: NetworkBehaviour
     [SerializeField] private Color abilityReadyColor = Color.white;
     [SerializeField] private Color abilityCooldownColor = Color.grey;
 
+    [Header("End Round UI")]
+    [SerializeField] private GameObject youDiedUI;
+    [SerializeField] private GameObject youWinUI;
+    
+    [Header("Spawn UI")]
+    [SerializeField] private GameObject spawnButtonUI;
+    
+    
     private float slamCooldownTimer = 0f;
     private float blockCooldownTimer = 0f;
+    
+    public bool IsDead { get; private set; } = false;
+    private bool isWaitingToSpawn = false;
 
     private void Awake()
     {
@@ -44,6 +55,11 @@ public class Player: NetworkBehaviour
     
     public override void OnNetworkSpawn()
     {
+        if (IsServer && RoundManager.Instance != null)
+        {
+            RoundManager.Instance.RegisterPlayer(this);
+        }
+        
         if (!IsOwner) return;
         
         inputMap = new MultiplayerInputMap();
@@ -68,6 +84,33 @@ public class Player: NetworkBehaviour
             if (blockIconObj != null)
                 blockIcon = blockIconObj.GetComponent<Image>();
         }
+
+        if (youDiedUI == null || youWinUI == null || spawnButtonUI == null)
+        {
+           var allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+           foreach (var obj in allObjects)
+           {
+               if (!obj.scene.IsValid())
+                   continue;
+               
+               if (obj.name == "You Died" && youDiedUI == null)
+                   youDiedUI = obj;
+               else if (obj.name == "You Win" && youWinUI == null)
+                   youWinUI = obj;
+               else if (obj.name == "Spawn Button" && spawnButtonUI == null)
+                   spawnButtonUI = obj;
+           }
+        }
+        
+        
+        if (youDiedUI != null)
+            youDiedUI.SetActive(false);
+        
+        if (youWinUI != null)
+            youWinUI.SetActive(false);
+        
+        if (spawnButtonUI != null)
+            spawnButtonUI.SetActive(false);
     }
 
     private void Update()
@@ -127,6 +170,8 @@ public class Player: NetworkBehaviour
     {
         if (!IsOwner) return;
         if (controlsLocked) return;
+        if (IsDead) return;
+        if (isWaitingToSpawn) return;
         
         Vector3 move = new Vector3(moveInput.x, 0f, moveInput.y);
         rb.MovePosition(rb.position + move * movementSpeed * Time.fixedDeltaTime);
@@ -146,6 +191,8 @@ public class Player: NetworkBehaviour
     {
         if (!IsOwner) return;
         if (controlsLocked) return;
+        if (IsDead) return;
+        if (isWaitingToSpawn) return;
         
         if (Mathf.Abs(rb.linearVelocity.y) < 0.1f)
         {
@@ -157,6 +204,8 @@ public class Player: NetworkBehaviour
     {
         if (!IsOwner) return;
         if (slam == null) return;
+        if (IsDead) return;
+        if (isWaitingToSpawn) return;
 
         if (slamCooldownTimer > 0f) return;
         
@@ -173,19 +222,29 @@ public class Player: NetworkBehaviour
     {
         if (!IsOwner) return;
         if (block == null) return;
+        if (IsDead) return;
+        if (isWaitingToSpawn) return;
         
         if (blockCooldownTimer > 0f) return;
         
         block.RequestBlock();
 
         StartBlockNetwork();
-        
-        if (block.BlockCooldown > 0f)
-            blockCooldownTimer = block.BlockCooldown;
+    }
+
+    public void StartBlockCooldown(float seconds)
+    {
+        if (!IsOwner) return;
+        blockCooldownTimer = seconds;
     }
 
     public override void OnNetworkDespawn()
     {
+        if (IsServer && RoundManager.Instance != null)
+        {
+            RoundManager.Instance.UnregisterPlayer(this);
+        }
+        
         if (IsOwner && inputMap != null)
         {
             inputMap.Disable();
@@ -297,6 +356,159 @@ public class Player: NetworkBehaviour
             block.RequestBlock();
         }
     
+    #endregion
+    
+    #region Lava
+
+        [ClientRpc]
+        public void KillPlayerClientRpc()
+        {
+            IsDead = true;
+            isWaitingToSpawn = false;
+            
+            if (IsOwner && youDiedUI != null)
+            {
+                youDiedUI.SetActive(true);
+            }
+            
+            controlsLocked = true;
+
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+            }
+            
+            var col = GetComponent<Collider>();
+            if (col != null)
+                col.enabled = false;
+            
+            if (bodyRenderer != null)
+                bodyRenderer.enabled = false;
+
+            if (IsServer && RoundManager.Instance != null)
+            {
+                RoundManager.Instance.OnPlayerDied(this);
+            }
+        }
+    
+    #endregion
+    
+    #region Pre-Round/Spawn
+
+        [ClientRpc]
+        public void EnterPreRoundStateClientRpc()
+        {
+                IsDead = false;
+                isWaitingToSpawn = true;
+                
+                controlsLocked = true;
+                moveInput = Vector2.zero;
+                
+                if (rb == null)
+                    rb = GetComponent<Rigidbody>();
+
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    
+                    rb.isKinematic = true;
+                }
+
+                var col = GetComponent<Collider>();
+                if (col != null)
+                    col.enabled = false;
+                
+                if (bodyRenderer != null)
+                    bodyRenderer.enabled = false;
+                
+
+                if (IsOwner)
+                {
+                    if (youDiedUI != null)
+                        youDiedUI.SetActive(false);
+                    
+                    if (youWinUI != null)
+                        youWinUI.SetActive(false);
+                    
+                    if (spawnButtonUI != null)
+                        spawnButtonUI.SetActive(true);
+                }
+        }
+
+        public void RequestSpawn()
+        {
+            if (!IsOwner) return;
+            if (!isWaitingToSpawn) return;
+
+            RequestSpawnServerRpc();
+        }
+
+        [ServerRpc]
+        private void RequestSpawnServerRpc(ServerRpcParams rpcParams = default)
+        {
+            if (RoundManager.Instance == null) return;
+
+            int index = RoundManager.Instance.GetPlayerIndex(this);
+            if (index < 0) index = 0;
+
+            Vector3 spawnPos = RoundManager.Instance.GetSpawnPosition(index);
+
+            RespawnClientRpc(spawnPos);
+        }
+
+        [ClientRpc]
+        private void RespawnClientRpc(Vector3 spawnPosition)
+        {
+            IsDead = false;
+            isWaitingToSpawn = false;
+                
+            if (rb == null)
+                rb = GetComponent<Rigidbody>();
+
+            
+            rb.isKinematic = false;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            
+            var col = GetComponent<Collider>();
+            if (col != null)
+                col.enabled = true;
+                
+            if (bodyRenderer != null)
+                bodyRenderer.enabled = true;
+                
+            transform.position = spawnPosition;
+            controlsLocked = false;
+
+            if (IsOwner)
+            {
+                if (youDiedUI != null)
+                    youDiedUI.SetActive(false);
+                    
+                if (youWinUI != null)
+                    youWinUI.SetActive(false);
+                    
+                if (spawnButtonUI != null)
+                    spawnButtonUI.SetActive(false);
+            }
+        }
+    
+    #endregion
+    
+    #region Win UI
+
+        [ClientRpc]
+        public void ShowWinClientRpc()
+        {
+            if (!IsOwner) return;
+            
+            if (youWinUI != null)
+                youWinUI.SetActive(true);
+        }
+        
     #endregion
     
     #region Knockback 

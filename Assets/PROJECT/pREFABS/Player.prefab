@@ -491,7 +491,7 @@ GameObject:
   - component: {fileID: 8920305983208992529}
   m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: GroundCheck
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -613,6 +613,7 @@ MonoBehaviour:
   blockIcon: {fileID: 0}
   abilityReadyColor: {r: 1, g: 1, b: 1, a: 1}
   abilityCooldownColor: {r: 0, g: 0, b: 0, a: 1}
+  youDiedUI: {fileID: 0}
 --- !u!114 &243857049602797729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -756,6 +757,7 @@ MonoBehaviour:
   bodyRenderer: {fileID: 900252674505925501}
   blockColor: {r: 0, g: 1, b: 0, a: 1}
   blockObject: {fileID: 2376375968370058739}
+  player: {fileID: 5983353930324555545}
 --- !u!1 &6761759059655469799
 GameObject:
   m_ObjectHideFlags: 0
