@@ -103,16 +103,26 @@ public class Slam : MonoBehaviour
         rb.useGravity = true;
         isSlamming = false;
 
-        if (slamImage != null)
-        {
-            slamImage.SetActive(true);
-            StartCoroutine(ImageReturnDelay());
-        }
-
         if (player != null)
         {
-            player.DoSlamKnockbackNetwork(transform.position, slamRadius, slamForce, upwardModifer, affectedLayers);
+            if(postSlamCooldown > 0f)
+                player.LockControlsFor(postSlamCooldown);
+            
+            ShowSlamImage();
+            
+            player.ShowSlamImageServerRpc();
+            player.StartCooldownColorNetwork(postSlamCooldown);
+            
+            player.DoSlamKnockbackNetwork(transform.position, slamRadius,slamForce, upwardModifer, affectedLayers);
         }
+    }
+
+    public void ShowSlamImage()
+    {
+        if (slamImage == null) return;
+        
+        slamImage.SetActive(true);
+        StartCoroutine(ImageReturnDelay());
     }
 
     private IEnumerator ImageReturnDelay()
@@ -136,7 +146,7 @@ public class Slam : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (groundCheck == null)
+        if (groundCheck != null)
         {
             Gizmos.color = Color.black;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);

@@ -488,6 +488,7 @@ GameObject:
   - component: {fileID: 2067461953760695664}
   - component: {fileID: 4344962171463331059}
   - component: {fileID: -634122014459946681}
+  - component: {fileID: 8920305983208992529}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -605,6 +606,7 @@ MonoBehaviour:
   movementSpeed: 5
   jumpForce: 15.7
   slam: {fileID: -634122014459946681}
+  block: {fileID: 8920305983208992529}
   bodyRenderer: {fileID: 900252674505925501}
   cooldownColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!114 &243857049602797729
@@ -732,6 +734,23 @@ MonoBehaviour:
   affectedLayers:
     serializedVersion: 2
     m_Bits: 8
+--- !u!114 &8920305983208992529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5484291501796418546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4729d023386c8924ea28f955016b9e5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockDuration: 1.5
+  knockbackMultiplier: 0.5
+  bodyRenderer: {fileID: 900252674505925501}
+  blockColor: {r: 0, g: 1, b: 0, a: 1}
+  blockObject: {fileID: 2376375968370058739}
 --- !u!1 &6761759059655469799
 GameObject:
   m_ObjectHideFlags: 0

@@ -16,7 +16,9 @@ public class Player: NetworkBehaviour
     
     private bool controlsLocked = false;
     
+    [Header("Abilities")]
     [SerializeField] private Slam slam;
+    [SerializeField] private Block block;
     
     [Header("Color Change")]
     [SerializeField] private Renderer bodyRenderer;
@@ -42,6 +44,7 @@ public class Player: NetworkBehaviour
         inputMap.PlayerActionMap.Movement.performed += OnMove;
         inputMap.PlayerActionMap.Movement.canceled += OnResetMove;
         inputMap.PlayerActionMap.Slam.performed += OnSlam;
+        inputMap.PlayerActionMap.Block.performed += OnBlock;
     }
 
     private void FixedUpdate()
@@ -80,6 +83,12 @@ public class Player: NetworkBehaviour
         slam?.RequestSlam();
     }
 
+    private void OnBlock(InputAction.CallbackContext context)
+    {
+        if (!IsOwner) return;
+        block?.RequestBlock();
+    }
+
     public override void OnNetworkDespawn()
     {
         if (IsOwner && inputMap != null)
@@ -115,6 +124,51 @@ public class Player: NetworkBehaviour
         inputMap.PlayerActionMap.Movement.performed -= OnMove;
         inputMap.PlayerActionMap.Movement.canceled -= OnResetMove;
         inputMap.PlayerActionMap.Slam.performed -= OnSlam;
+    }
+
+    [ServerRpc]
+    public void ShowSlamImageServerRpc()
+    {
+        ShowSlamImageClientRpc();
+    }
+
+    [ClientRpc]
+    private void ShowSlamImageClientRpc()
+    {
+        if (IsOwner) return;
+        
+        if (slam != null)
+        {
+            slam.ShowSlamImage();
+        }
+    }
+
+    public void StartCooldownColorNetwork(float seconds)
+    {
+        if (!IsOwner) return;
+        StartCooldownColorServerRpc(seconds);
+    }
+
+    [ServerRpc]
+    private void StartCooldownColorServerRpc(float seconds)
+    {
+        StartCooldownColorClientRpc(seconds);
+    }
+
+    [ClientRpc]
+    private void StartCooldownColorClientRpc(float seconds)
+    {
+        if (IsOwner) return;
+        if (bodyRenderer == null) return;
+        
+        StartCoroutine(CooldownColorRoutine(seconds));
+    }
+
+    private IEnumerator CooldownColorRoutine(float seconds)
+    {
+        bodyRenderer.material.color = cooldownColor;
+        yield return new WaitForSeconds(seconds);
+        bodyRenderer.material.color = originalColor;
     }
 
     public void DoSlamKnockbackNetwork(Vector3 origin, float radius, float force, float upward, LayerMask mask)
@@ -165,7 +219,13 @@ public class Player: NetworkBehaviour
         if (!IsOwner) return;   
         if (rb == null) rb = GetComponent<Rigidbody>();
         if (rb == null) return;
+
+        Vector3 finalImpulse = impulse;
+        if (block != null && block.IsBlocking)
+        {
+           finalImpulse *= block.KnockbackMultiplier; 
+        }
         
-        rb.AddForce(impulse, ForceMode.Impulse);
+        rb.AddForce(finalImpulse, ForceMode.Impulse);
     }
 }

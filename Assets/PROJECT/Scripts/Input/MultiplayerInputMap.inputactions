@@ -33,7 +33,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Interact",
+                    "name": "Block",
                     "type": "Button",
                     "id": "34489b9d-08f8-45fc-aef6-9447ffd8e390",
                     "expectedControlType": "",
@@ -132,11 +132,11 @@
                 {
                     "name": "",
                     "id": "fdf2d528-5843-4b0d-b7e5-b6f44dcec509",
-                    "path": "<Keyboard>/f",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Interact",
+                    "action": "Block",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

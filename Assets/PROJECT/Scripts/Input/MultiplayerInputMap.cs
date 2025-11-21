@@ -56,7 +56,7 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Interact"",
+                    ""name"": ""Block"",
                     ""type"": ""Button"",
                     ""id"": ""34489b9d-08f8-45fc-aef6-9447ffd8e390"",
                     ""expectedControlType"": """",
@@ -155,11 +155,11 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""fdf2d528-5843-4b0d-b7e5-b6f44dcec509"",
-                    ""path"": ""<Keyboard>/f"",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Interact"",
+                    ""action"": ""Block"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -184,7 +184,7 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
         m_PlayerActionMap_Jump = m_PlayerActionMap.FindAction("Jump", throwIfNotFound: true);
         m_PlayerActionMap_Movement = m_PlayerActionMap.FindAction("Movement", throwIfNotFound: true);
         m_PlayerActionMap_Pause = m_PlayerActionMap.FindAction("Pause", throwIfNotFound: true);
-        m_PlayerActionMap_Interact = m_PlayerActionMap.FindAction("Interact", throwIfNotFound: true);
+        m_PlayerActionMap_Block = m_PlayerActionMap.FindAction("Block", throwIfNotFound: true);
         m_PlayerActionMap_Slam = m_PlayerActionMap.FindAction("Slam", throwIfNotFound: true);
     }
 
@@ -255,7 +255,7 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerActionMap_Jump;
     private readonly InputAction m_PlayerActionMap_Movement;
     private readonly InputAction m_PlayerActionMap_Pause;
-    private readonly InputAction m_PlayerActionMap_Interact;
+    private readonly InputAction m_PlayerActionMap_Block;
     private readonly InputAction m_PlayerActionMap_Slam;
     public struct PlayerActionMapActions
     {
@@ -264,7 +264,7 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_PlayerActionMap_Jump;
         public InputAction @Movement => m_Wrapper.m_PlayerActionMap_Movement;
         public InputAction @Pause => m_Wrapper.m_PlayerActionMap_Pause;
-        public InputAction @Interact => m_Wrapper.m_PlayerActionMap_Interact;
+        public InputAction @Block => m_Wrapper.m_PlayerActionMap_Block;
         public InputAction @Slam => m_Wrapper.m_PlayerActionMap_Slam;
         public InputActionMap Get() { return m_Wrapper.m_PlayerActionMap; }
         public void Enable() { Get().Enable(); }
@@ -284,9 +284,9 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
-            @Interact.started += instance.OnInteract;
-            @Interact.performed += instance.OnInteract;
-            @Interact.canceled += instance.OnInteract;
+            @Block.started += instance.OnBlock;
+            @Block.performed += instance.OnBlock;
+            @Block.canceled += instance.OnBlock;
             @Slam.started += instance.OnSlam;
             @Slam.performed += instance.OnSlam;
             @Slam.canceled += instance.OnSlam;
@@ -303,9 +303,9 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
-            @Interact.started -= instance.OnInteract;
-            @Interact.performed -= instance.OnInteract;
-            @Interact.canceled -= instance.OnInteract;
+            @Block.started -= instance.OnBlock;
+            @Block.performed -= instance.OnBlock;
+            @Block.canceled -= instance.OnBlock;
             @Slam.started -= instance.OnSlam;
             @Slam.performed -= instance.OnSlam;
             @Slam.canceled -= instance.OnSlam;
@@ -331,7 +331,7 @@ public partial class @MultiplayerInputMap: IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnMovement(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
-        void OnInteract(InputAction.CallbackContext context);
+        void OnBlock(InputAction.CallbackContext context);
         void OnSlam(InputAction.CallbackContext context);
     }
 }
