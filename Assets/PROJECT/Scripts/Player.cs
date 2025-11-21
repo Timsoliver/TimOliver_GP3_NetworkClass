@@ -25,6 +25,15 @@ public class Player: NetworkBehaviour
     [SerializeField] private Color cooldownColor = Color.yellow;
     private Color originalColor;
 
+    [Header("Ability Cooldowns")] 
+    [SerializeField] private Image slamIcon;
+    [SerializeField] private Image blockIcon;
+    [SerializeField] private Color abilityReadyColor = Color.white;
+    [SerializeField] private Color abilityCooldownColor = Color.grey;
+
+    private float slamCooldownTimer = 0f;
+    private float blockCooldownTimer = 0f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -45,6 +54,73 @@ public class Player: NetworkBehaviour
         inputMap.PlayerActionMap.Movement.canceled += OnResetMove;
         inputMap.PlayerActionMap.Slam.performed += OnSlam;
         inputMap.PlayerActionMap.Block.performed += OnBlock;
+
+        if (slamIcon == null)
+        {
+            GameObject slamIconObj = GameObject.Find("Slam Image");
+            if (slamIconObj != null)
+                slamIcon = slamIconObj.GetComponent<Image>();
+        }
+
+        if (blockIcon == null)
+        {
+            GameObject blockIconObj = GameObject.Find("Block Image");
+            if (blockIconObj != null)
+                blockIcon = blockIconObj.GetComponent<Image>();
+        }
+    }
+
+    private void Update()
+    {
+        if (!IsOwner) return;
+
+        if (slam != null && slam.PostSlamCooldown > 0f)
+        {
+            if (slamCooldownTimer > 0f)
+            {
+                slamCooldownTimer -= Time.deltaTime;
+                if (slamCooldownTimer < 0f) slamCooldownTimer = 0f;
+            }
+            
+            if (slamIcon != null)
+            {
+                if (slamCooldownTimer > 0f)
+                {
+                    float t = slamCooldownTimer / slam.PostSlamCooldown;
+                    slamIcon.fillAmount = t;
+                    slamIcon.color = abilityCooldownColor;
+                }
+                else
+                {
+                    slamIcon.fillAmount = 0f;
+                    slamIcon.color = abilityReadyColor;
+                }
+            }
+        }
+
+        if (block != null && block.BlockCooldown > 0f)
+        {
+            if (blockCooldownTimer > 0f)
+            {
+                blockCooldownTimer -= Time.deltaTime;
+                if (blockCooldownTimer < 0f) blockCooldownTimer = 0f;
+            }
+
+            if (blockIcon != null)
+            {
+                if (blockCooldownTimer > 0f)
+                {
+                    float t = blockCooldownTimer / block.BlockCooldown;
+                    blockIcon.fillAmount = t;
+                    blockIcon.color = abilityCooldownColor;
+                }
+                else
+                {
+                    blockIcon.fillAmount = 0f;
+                    blockIcon.color = abilityReadyColor;
+                }
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -80,17 +156,32 @@ public class Player: NetworkBehaviour
     private void OnSlam(InputAction.CallbackContext context)
     {
         if (!IsOwner) return;
-        slam?.RequestSlam();
+        if (slam == null) return;
+
+        if (slamCooldownTimer > 0f) return;
+        
+        slam.RequestSlam();
     }
 
+    public void StartSlamCooldown(float seconds)
+    {
+        if (!IsOwner) return;
+        slamCooldownTimer = seconds;
+    }
+    
     private void OnBlock(InputAction.CallbackContext context)
     {
         if (!IsOwner) return;
         if (block == null) return;
         
+        if (blockCooldownTimer > 0f) return;
+        
         block.RequestBlock();
 
         StartBlockNetwork();
+        
+        if (block.BlockCooldown > 0f)
+            blockCooldownTimer = block.BlockCooldown;
     }
 
     public override void OnNetworkDespawn()

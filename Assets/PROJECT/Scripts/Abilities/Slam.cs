@@ -11,6 +11,8 @@ public class Slam : MonoBehaviour
     [SerializeField] private float stopTime = 0.5f;
     [SerializeField] private float postSlamCooldown = 3f;
     
+    public float PostSlamCooldown => postSlamCooldown;
+    
     [Header("Ground Check")]
     
     [SerializeField] private Transform groundCheck;
@@ -62,10 +64,6 @@ public class Slam : MonoBehaviour
             if (contacts[i].normal.y >= 0.5f)
             {
                 CompleteSlam();
-                
-                if (player != null && postSlamCooldown > 0f)
-                    player.LockControlsFor(postSlamCooldown);
-                
                 break;
             }
         }
@@ -105,13 +103,17 @@ public class Slam : MonoBehaviour
 
         if (player != null)
         {
-            if(postSlamCooldown > 0f)
+            if (postSlamCooldown > 0) 
+            {
                 player.LockControlsFor(postSlamCooldown);
-            
+
+                player.StartCooldownColorNetwork(postSlamCooldown);
+
+                player.StartSlamCooldown(postSlamCooldown);
+            }
             ShowSlamImage();
             
             player.ShowSlamImageServerRpc();
-            player.StartCooldownColorNetwork(postSlamCooldown);
             
             player.DoSlamKnockbackNetwork(transform.position, slamRadius,slamForce, upwardModifer, affectedLayers);
         }

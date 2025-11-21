@@ -609,6 +609,10 @@ MonoBehaviour:
   block: {fileID: 8920305983208992529}
   bodyRenderer: {fileID: 900252674505925501}
   cooldownColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  slamIcon: {fileID: 0}
+  blockIcon: {fileID: 0}
+  abilityReadyColor: {r: 1, g: 1, b: 1, a: 1}
+  abilityCooldownColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!114 &243857049602797729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -748,6 +752,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blockDuration: 1.5
   knockbackMultiplier: 0.5
+  blockCooldown: 1.5
   bodyRenderer: {fileID: 900252674505925501}
   blockColor: {r: 0, g: 1, b: 0, a: 1}
   blockObject: {fileID: 2376375968370058739}
@@ -902,7 +907,7 @@ GameObject:
   - component: {fileID: 2059154585934189703}
   - component: {fileID: 296579605605604489}
   m_Layer: 0
-  m_Name: 'Slam Image '
+  m_Name: Slam Effect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

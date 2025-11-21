@@ -4,9 +4,10 @@ using System.Collections;
 public class Block : MonoBehaviour
 {
     [Header("Block Properties")] 
-    [SerializeField] private float blockDuration = 1.5f;
+    [SerializeField] private float blockDuration = 1f;
     [SerializeField] private float knockbackMultiplier = 0.5f; //Remember 0 = no knockback and 1 = max knockback
-
+    [SerializeField] private float blockCooldown = 1.5f;
+    
     [Header("Visuals")] 
     [SerializeField] private Renderer bodyRenderer;
     [SerializeField] private Color blockColor = Color.green;
@@ -18,6 +19,7 @@ public class Block : MonoBehaviour
     public bool IsBlocking => isBlocking;
     public float KnockbackMultiplier => knockbackMultiplier;
     public float BlockDuration => blockDuration;
+    public float BlockCooldown => blockCooldown;
 
     private void Awake()
     {
