@@ -17,6 +17,7 @@ public class Block : MonoBehaviour
 
     public bool IsBlocking => isBlocking;
     public float KnockbackMultiplier => knockbackMultiplier;
+    public float BlockDuration => blockDuration;
 
     private void Awake()
     {

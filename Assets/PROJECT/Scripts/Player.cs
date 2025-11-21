@@ -86,7 +86,11 @@ public class Player: NetworkBehaviour
     private void OnBlock(InputAction.CallbackContext context)
     {
         if (!IsOwner) return;
-        block?.RequestBlock();
+        if (block == null) return;
+        
+        block.RequestBlock();
+
+        StartBlockNetwork();
     }
 
     public override void OnNetworkDespawn()
@@ -124,108 +128,143 @@ public class Player: NetworkBehaviour
         inputMap.PlayerActionMap.Movement.performed -= OnMove;
         inputMap.PlayerActionMap.Movement.canceled -= OnResetMove;
         inputMap.PlayerActionMap.Slam.performed -= OnSlam;
+        inputMap.PlayerActionMap.Block.performed -= OnBlock;
     }
 
-    [ServerRpc]
-    public void ShowSlamImageServerRpc()
-    {
-        ShowSlamImageClientRpc();
-    }
-
-    [ClientRpc]
-    private void ShowSlamImageClientRpc()
-    {
-        if (IsOwner) return;
-        
-        if (slam != null)
+    #region Slam Image Sync Up
+    
+        [ServerRpc]
+        public void ShowSlamImageServerRpc()
         {
-            slam.ShowSlamImage();
+            ShowSlamImageClientRpc();
         }
-    }
 
-    public void StartCooldownColorNetwork(float seconds)
-    {
-        if (!IsOwner) return;
-        StartCooldownColorServerRpc(seconds);
-    }
-
-    [ServerRpc]
-    private void StartCooldownColorServerRpc(float seconds)
-    {
-        StartCooldownColorClientRpc(seconds);
-    }
-
-    [ClientRpc]
-    private void StartCooldownColorClientRpc(float seconds)
-    {
-        if (IsOwner) return;
-        if (bodyRenderer == null) return;
-        
-        StartCoroutine(CooldownColorRoutine(seconds));
-    }
-
-    private IEnumerator CooldownColorRoutine(float seconds)
-    {
-        bodyRenderer.material.color = cooldownColor;
-        yield return new WaitForSeconds(seconds);
-        bodyRenderer.material.color = originalColor;
-    }
-
-    public void DoSlamKnockbackNetwork(Vector3 origin, float radius, float force, float upward, LayerMask mask)
-    {
-        if (!IsOwner) return;
-        ApplySlamKnockbackServerRpc(origin, radius, force, upward, mask.value);
-    }
-
-    [ServerRpc]
-    private void ApplySlamKnockbackServerRpc(Vector3 origin, float radius, float force, float upward, int layerMask)
-    {
-        var hits = Physics.OverlapSphere(origin, radius, layerMask, QueryTriggerInteraction.Ignore);
-
-        foreach (var hit in hits)
+        [ClientRpc]
+        private void ShowSlamImageClientRpc()
         {
-            var targetRb = hit.attachedRigidbody;
-            if (targetRb == null) continue;
+            if (IsOwner) return;
             
-            var targetNetworkObject = hit.GetComponentInParent<NetworkObject>();
-            if (targetNetworkObject == null) continue;
-            
-            if (targetNetworkObject == this.NetworkObject) continue;
-            
-            Vector3 direction = (targetRb.worldCenterOfMass - origin).normalized;
-            direction.y = Mathf.Max(direction.y, upward);
-            Vector3 impulse = direction * force;
-            
-            ulong targetClientId = targetNetworkObject.OwnerClientId;
-            var sendParams = new ClientRpcParams()
+            if (slam != null)
             {
-                Send = new ClientRpcSendParams
-                {
-                    TargetClientIds = new ulong[] { targetClientId }
-                }
-            };
-            
-            var targetPlayer = targetNetworkObject.GetComponent<Player>();
-            if (targetPlayer != null)
-            {
-                targetPlayer.ApplyKnockbackClientRpc(impulse, sendParams);
+                slam.ShowSlamImage();
             }
         }
-    }
+    #endregion
     
-    [ClientRpc]
-    private void ApplyKnockbackClientRpc(Vector3 impulse, ClientRpcParams rpcParams = default)
-    {
-        if (!IsOwner) return;   
-        if (rb == null) rb = GetComponent<Rigidbody>();
-        if (rb == null) return;
-
-        Vector3 finalImpulse = impulse;
-        if (block != null && block.IsBlocking)
+    #region Slam Cooldown Color Sync Up
+    
+        public void StartCooldownColorNetwork(float seconds)
         {
-           finalImpulse *= block.KnockbackMultiplier; 
+            if (!IsOwner) return;
+            StartCooldownColorServerRpc(seconds);
+        }
+
+        [ServerRpc]
+        private void StartCooldownColorServerRpc(float seconds)
+        {
+            StartCooldownColorClientRpc(seconds);
+        }
+
+        [ClientRpc]
+        private void StartCooldownColorClientRpc(float seconds)
+        {
+            if (IsOwner) return;
+            if (bodyRenderer == null) return;
+            
+            StartCoroutine(CooldownColorRoutine(seconds));
+        }
+
+        private IEnumerator CooldownColorRoutine(float seconds)
+        {
+            bodyRenderer.material.color = cooldownColor;
+            yield return new WaitForSeconds(seconds);
+            bodyRenderer.material.color = originalColor;
         }
         
-        rb.AddForce(finalImpulse, ForceMode.Impulse);
-    }
+    #endregion
+
+    #region Block Visuals Sync Up
+    
+        public void StartBlockNetwork()
+        {
+            if (!IsOwner) return;
+            StartBlockServerRpc();
+        }
+
+        [ServerRpc]
+        private void StartBlockServerRpc()
+        {
+            StartBlockClientRpc();
+        }
+
+        [ClientRpc]
+        private void StartBlockClientRpc()
+        {
+            if (IsOwner) return;
+            if (block == null) return;
+            
+            block.RequestBlock();
+        }
+    
+    #endregion
+    
+    #region Knockback 
+        public void DoSlamKnockbackNetwork(Vector3 origin, float radius, float force, float upward, LayerMask mask)
+        {
+            if (!IsOwner) return;
+            ApplySlamKnockbackServerRpc(origin, radius, force, upward, mask.value);
+        }
+
+        [ServerRpc]
+        private void ApplySlamKnockbackServerRpc(Vector3 origin, float radius, float force, float upward, int layerMask)
+        {
+            var hits = Physics.OverlapSphere(origin, radius, layerMask, QueryTriggerInteraction.Ignore);
+
+            foreach (var hit in hits)
+            {
+                var targetRb = hit.attachedRigidbody;
+                if (targetRb == null) continue;
+                
+                var targetNetworkObject = hit.GetComponentInParent<NetworkObject>();
+                if (targetNetworkObject == null) continue;
+                
+                if (targetNetworkObject == this.NetworkObject) continue;
+                
+                Vector3 direction = (targetRb.worldCenterOfMass - origin).normalized;
+                direction.y = Mathf.Max(direction.y, upward);
+                Vector3 impulse = direction * force;
+                
+                ulong targetClientId = targetNetworkObject.OwnerClientId;
+                var sendParams = new ClientRpcParams()
+                {
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds = new ulong[] { targetClientId }
+                    }
+                };
+                
+                var targetPlayer = targetNetworkObject.GetComponent<Player>();
+                if (targetPlayer != null)
+                {
+                    targetPlayer.ApplyKnockbackClientRpc(impulse, sendParams);
+                }
+            }
+        }
+        
+        [ClientRpc]
+        private void ApplyKnockbackClientRpc(Vector3 impulse, ClientRpcParams rpcParams = default)
+        {
+            if (!IsOwner) return;   
+            if (rb == null) rb = GetComponent<Rigidbody>();
+            if (rb == null) return;
+
+            Vector3 finalImpulse = impulse;
+            if (block != null && block.IsBlocking)
+            {
+               finalImpulse *= block.KnockbackMultiplier; 
+            }
+            
+            rb.AddForce(finalImpulse, ForceMode.Impulse);
+        }
+    #endregion    
 }
